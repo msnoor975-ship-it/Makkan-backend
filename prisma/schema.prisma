@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String             @id @default(uuid())
+  username            String             @unique
+  passwordHash        String
+  role                UserRole
+  fullName            String
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  customersAdded      Customer[]         @relation("CustomerAddedBy")
+  financialAccounts   FinancialAccount[] @relation("FinancialAccountRecordedBy")
+  homeownersAdded     Homeowner[]        @relation("HomeownerAddedBy")
+  housesAdded         House[]            @relation("HouseAddedBy")
+  reservationsHandled Reservation[]      @relation("ReservationHandledBy")
+}
+
+model Customer {
+  id            String        @id @default(uuid())
+  fullName      String
+  phone         String?
+  email         String?
+  status        String
+  addedByUserId String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  imageUrl      String?
+  addedByUser   User          @relation("CustomerAddedBy", fields: [addedByUserId], references: [id])
+  reservations  Reservation[]
+}
+
+model Homeowner {
+  id            String   @id @default(uuid())
+  fullName      String
+  phone         String?
+  addedByUserId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  addedByUser   User     @relation("HomeownerAddedBy", fields: [addedByUserId], references: [id])
+  houses        House[]
+}
+
+model House {
+  id             String        @id @default(uuid())
+  address        String
+  specifications String?
+  price          Decimal       @db.Decimal(12, 2)
+  listingType    ListingType
+  status         HouseStatus
+  homeownerId    String
+  addedByUserId  String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  imageUrl       String?
+  addedByUser    User          @relation("HouseAddedBy", fields: [addedByUserId], references: [id])
+  homeowner      Homeowner     @relation(fields: [homeownerId], references: [id])
+  reservations   Reservation[]
+}
+
+model Reservation {
+  id              String   @id @default(uuid())
+  customerId      String
+  houseId         String
+  handledByUserId String
+  reservationDate DateTime
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  customer        Customer @relation(fields: [customerId], references: [id])
+  handledByUser   User     @relation("ReservationHandledBy", fields: [handledByUserId], references: [id])
+  house           House    @relation(fields: [houseId], references: [id])
+}
+
+model FinancialAccount {
+  id               String   @id @default(uuid())
+  category         String
+  amount           Decimal  @db.Decimal(12, 2)
+  description      String?
+  entryDate        DateTime
+  recordedByUserId String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  recordedByUser   User     @relation("FinancialAccountRecordedBy", fields: [recordedByUserId], references: [id])
+}
+
+enum UserRole {
+  sales_employee
+  rental_employee
+  manager
+  secretary
+}
+
+enum ListingType {
+  sale
+  rent
+}
+
+enum HouseStatus {
+  available
+  reserved
+  sold
+}

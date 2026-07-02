@@ -17,6 +17,9 @@ const swaggerSpec = require('./config/swagger');
 
 const app = express();
 
+// Trust proxy for Render
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 

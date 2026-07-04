@@ -108,7 +108,7 @@ async function main() {
       status: 'available',
       homeownerId: homeowner1.id,
       addedByUserId: salesEmployee.id,
-      imageUrl: '/images/hero/hero-house-1.jpg',
+      imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80',
     },
   });
 
@@ -124,7 +124,7 @@ async function main() {
       status: 'available',
       homeownerId: homeowner2.id,
       addedByUserId: salesEmployee.id,
-      imageUrl: '/images/hero/hero-house-2.jpg',
+      imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
     },
   });
 
@@ -140,7 +140,7 @@ async function main() {
       status: 'available',
       homeownerId: homeowner3.id,
       addedByUserId: salesEmployee.id,
-      imageUrl: '/images/hero/hero-house-3.jpg',
+      imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
     },
   });
 
@@ -156,7 +156,7 @@ async function main() {
       status: 'available',
       homeownerId: homeowner1.id,
       addedByUserId: rentalEmployee.id,
-      imageUrl: '/images/hero/lifestyle-1.jpg',
+      imageUrl: 'https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=800&q=80',
     },
   });
 
@@ -172,7 +172,7 @@ async function main() {
       status: 'reserved',
       homeownerId: homeowner2.id,
       addedByUserId: salesEmployee.id,
-      imageUrl: '/images/hero/lifestyle-2.jpg',
+      imageUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80',
     },
   });
 

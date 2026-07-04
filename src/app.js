@@ -30,9 +30,6 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
-
 // API Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

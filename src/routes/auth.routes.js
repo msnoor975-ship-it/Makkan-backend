@@ -20,6 +20,11 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting in development or if behind a trusted proxy
+    return process.env.NODE_ENV === 'development'
+  },
+  trustProxy: false, // Disable trust proxy validation for Render
 });
 
 /**

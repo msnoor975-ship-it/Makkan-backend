@@ -16,11 +16,18 @@ const uploadImage = async (req, res) => {
     
     const bucket = bucketMap[type] || 'house-images'
     
+    console.log('Upload debug - Type:', type)
+    console.log('Upload debug - Bucket:', bucket)
+    console.log('Upload debug - Supabase URL:', supabaseUrl)
+    console.log('Upload debug - Supabase Key exists:', !!supabaseKey)
+    
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' })
     }
 
     const fileName = `${type}-${Date.now()}-${Math.round(Math.random() * 1E9)}${req.file.originalname}`
+    console.log('Upload debug - Filename:', fileName)
+    
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(fileName, req.file.buffer, {

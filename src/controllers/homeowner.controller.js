@@ -8,13 +8,11 @@ const { AppError } = require('../middleware/errorHandler');
 const createHomeownerSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
   phone: z.string().optional(),
-  imageUrl: z.string().optional(),
 });
 
 const updateHomeownerSchema = z.object({
   fullName: z.string().min(1, 'Full name is required').optional(),
   phone: z.string().optional(),
-  imageUrl: z.string().optional(),
 });
 
 /**

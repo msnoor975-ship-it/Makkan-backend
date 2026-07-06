@@ -1,7 +1,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
-const { login, changePassword, logout } = require('../controllers/auth.controller');
+const { login, changePassword, logout, register } = require('../controllers/auth.controller');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 
@@ -64,6 +64,58 @@ const authLimiter = rateLimit({
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/login', authLimiter, asyncHandler(login));
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register new user
+ *     description: Creates a new user with pending status requiring manager approval
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 minLength: 3
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *               fullName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *           example:
+ *             username: "newuser"
+ *             password: "password123"
+ *             fullName: "John Doe"
+ *             email: "john@example.com"
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *       400:
+ *         description: Validation error or username exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/register', authLimiter, asyncHandler(register));
 
 /**
  * @swagger

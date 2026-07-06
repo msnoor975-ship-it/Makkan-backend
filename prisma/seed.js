@@ -21,6 +21,7 @@ async function main() {
       passwordHash: managerPassword,
       role: 'manager',
       fullName: 'System Manager',
+      status: 'active',
     },
   });
 
@@ -32,6 +33,7 @@ async function main() {
       passwordHash: salesPassword,
       role: 'sales_employee',
       fullName: 'Sales Employee',
+      status: 'active',
     },
   });
 
@@ -43,6 +45,7 @@ async function main() {
       passwordHash: rentalPassword,
       role: 'rental_employee',
       fullName: 'Rental Employee',
+      status: 'active',
     },
   });
 
@@ -54,6 +57,7 @@ async function main() {
       passwordHash: secretaryPassword,
       role: 'secretary',
       fullName: 'Secretary',
+      status: 'active',
     },
   });
 

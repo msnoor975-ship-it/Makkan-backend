@@ -51,7 +51,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', requireAuth, requireRole('secretary'), asyncHandler(createFinance));
+router.post('/', requireAuth, requireRole('manager', 'secretary'), asyncHandler(createFinance));
 
 /**
  * @swagger
@@ -110,6 +110,6 @@ router.post('/', requireAuth, requireRole('secretary'), asyncHandler(createFinan
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/', requireAuth, requireRole('manager'), asyncHandler(listFinance));
+router.get('/', requireAuth, requireRole('manager', 'secretary'), asyncHandler(listFinance));
 
 module.exports = router;

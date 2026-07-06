@@ -12,6 +12,7 @@ const houseRoutes = require('./routes/house.routes');
 const reservationRoutes = require('./routes/reservation.routes');
 const financeRoutes = require('./routes/finance.routes');
 const uploadRoutes = require('./routes/upload');
+const userRoutes = require('./routes/user.routes');
 const { errorHandler } = require('./middleware/errorHandler');
 const swaggerSpec = require('./config/swagger');
 
@@ -42,6 +43,7 @@ app.use('/api/houses', houseRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/users', userRoutes);
 
 // Error handling middleware (must be after routes)
 app.use(errorHandler);

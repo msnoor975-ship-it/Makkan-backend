@@ -12,7 +12,12 @@ model User {
   username            String             @unique
   passwordHash        String
   role                UserRole
+  status              UserStatus         @default(pending)
   fullName            String
+  email               String?
+  emailVerified       Boolean           @default(false)
+  emailVerifiedAt     DateTime?
+  lastLogin           DateTime?
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   customersAdded      Customer[]         @relation("CustomerAddedBy")
@@ -20,6 +25,8 @@ model User {
   homeownersAdded     Homeowner[]        @relation("HomeownerAddedBy")
   housesAdded         House[]            @relation("HouseAddedBy")
   reservationsHandled Reservation[]      @relation("ReservationHandledBy")
+  auditLogs           AuditLog[]
+  notifications       Notification[]
 }
 
 model Customer {
@@ -90,11 +97,42 @@ model FinancialAccount {
   recordedByUser   User     @relation("FinancialAccountRecordedBy", fields: [recordedByUserId], references: [id])
 }
 
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  action      String
+  entity      String
+  entityId    String?
+  changes     Json?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
 enum UserRole {
   sales_employee
   rental_employee
   manager
   secretary
+}
+
+enum UserStatus {
+  pending
+  active
+  suspended
+  deleted
 }
 
 enum ListingType {

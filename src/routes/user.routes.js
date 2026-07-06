@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const asyncHandler = require('../utils/asyncHandler');
+const { asyncHandler } = require('../middleware/errorHandler');
 const {
   getAllUsers,
   getUserById,

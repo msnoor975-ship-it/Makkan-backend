@@ -161,7 +161,7 @@ router.get(
 router.post(
   '/',
   requireAuth,
-  requireRole('sales_employee', 'rental_employee'),
+  requireRole('sales_employee', 'rental_employee', 'manager'),
   asyncHandler(createReservation)
 );
 

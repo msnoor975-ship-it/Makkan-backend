@@ -5,10 +5,8 @@ const {
   getAllUsers,
   getUserById,
   createUser,
-  updateUserStatus,
   updateUserRole,
   deleteUser,
-  getPendingUsers,
 } = require('../controllers/user.controller');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
@@ -19,22 +17,16 @@ router.use(requireRole('manager'));
 // Get all users
 router.get('/', asyncHandler(getAllUsers));
 
-// Get pending users (approval queue)
-router.get('/pending', asyncHandler(getPendingUsers));
-
 // Get user by ID
 router.get('/:id', asyncHandler(getUserById));
 
 // Create new user
 router.post('/', asyncHandler(createUser));
 
-// Update user status
-router.patch('/:id/status', asyncHandler(updateUserStatus));
-
 // Update user role
 router.patch('/:id/role', asyncHandler(updateUserRole));
 
-// Delete user (soft delete)
+// Delete user
 router.delete('/:id', asyncHandler(deleteUser));
 
 module.exports = router;

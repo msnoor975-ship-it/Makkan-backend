@@ -12,12 +12,8 @@ const getAllUsers = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
-        status: true,
         fullName: true,
-        email: true,
-        emailVerified: true,
         createdAt: true,
-        lastLogin: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -39,12 +35,8 @@ const getUserById = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
-        status: true,
         fullName: true,
-        email: true,
-        emailVerified: true,
         createdAt: true,
-        lastLogin: true,
       },
     });
 
@@ -81,17 +73,13 @@ const createUser = async (req, res, next) => {
         username,
         passwordHash,
         fullName,
-        email,
         role,
-        status: 'active',
       },
       select: {
         id: true,
         username: true,
         role: true,
-        status: true,
         fullName: true,
-        email: true,
         createdAt: true,
       },
     });
@@ -103,70 +91,13 @@ const createUser = async (req, res, next) => {
         action: 'CREATE_USER',
         entity: 'User',
         entityId: user.id,
-        changes: { username, role, status: 'active' },
+        changes: { username, role },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       },
     });
 
     res.status(201).json(user);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Update user status (manager only)
-const updateUserStatus = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: { status },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        status: true,
-        fullName: true,
-        email: true,
-        createdAt: true,
-      },
-    });
-
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId,
-        action: 'UPDATE_USER_STATUS',
-        entity: 'User',
-        entityId: id,
-        changes: { oldStatus: user.status, newStatus: status },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
-      },
-    });
-
-    // Create notification for the user
-    await prisma.notification.create({
-      data: {
-        userId: id,
-        type: 'STATUS_CHANGE',
-        title: 'Account Status Updated',
-        message: `Your account status has been changed to ${status}`,
-      },
-    });
-
-    res.json(updatedUser);
   } catch (error) {
     next(error);
   }
@@ -193,9 +124,7 @@ const updateUserRole = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
-        status: true,
         fullName: true,
-        email: true,
         createdAt: true,
       },
     });
@@ -213,21 +142,12 @@ const updateUserRole = async (req, res, next) => {
       },
     });
 
-    // Create notification for the user
-    await prisma.notification.create({
-      data: {
-        userId: id,
-        type: 'ROLE_CHANGE',
-        title: 'Role Updated',
-        message: `Your role has been changed to ${role}`,
-      },
-    });
-
     res.json(updatedUser);
   } catch (error) {
     next(error);
   }
 };
+
 
 // Delete user (manager only)
 const deleteUser = async (req, res, next) => {
@@ -242,10 +162,9 @@ const deleteUser = async (req, res, next) => {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    // Soft delete by setting status to deleted
-    await prisma.user.update({
+    // Hard delete user
+    await prisma.user.delete({
       where: { id },
-      data: { status: 'deleted' },
     });
 
     // Create audit log
@@ -267,35 +186,11 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// Get pending users (manager only)
-const getPendingUsers = async (req, res, next) => {
-  try {
-    const users = await prisma.user.findMany({
-      where: { status: 'pending' },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        status: true,
-        fullName: true,
-        email: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    res.json(users);
-  } catch (error) {
-    next(error);
-  }
-};
 
 module.exports = {
   getAllUsers,
   getUserById,
   createUser,
-  updateUserStatus,
   updateUserRole,
   deleteUser,
-  getPendingUsers,
 };

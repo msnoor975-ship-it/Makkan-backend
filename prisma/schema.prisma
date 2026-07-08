@@ -12,12 +12,7 @@ model User {
   username            String             @unique
   passwordHash        String
   role                UserRole
-  status              UserStatus         @default(pending)
   fullName            String
-  email               String?
-  emailVerified       Boolean           @default(false)
-  emailVerifiedAt     DateTime?
-  lastLogin           DateTime?
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   customersAdded      Customer[]         @relation("CustomerAddedBy")
@@ -126,13 +121,6 @@ enum UserRole {
   rental_employee
   manager
   secretary
-}
-
-enum UserStatus {
-  pending
-  active
-  suspended
-  deleted
 }
 
 enum ListingType {

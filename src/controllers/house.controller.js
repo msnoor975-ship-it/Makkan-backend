@@ -39,6 +39,19 @@ const updateHouseSchema = z.object({
   imageUrl: z.string().optional(),
 });
 
+const searchHousesSchema = z.object({
+  listingType: z.enum(['sale', 'rent']).optional(),
+  minPrice: z.string().or(z.number()).transform((val) => {
+    if (typeof val === 'number') return val;
+    return parseFloat(val);
+  }).optional(),
+  maxPrice: z.string().or(z.number()).transform((val) => {
+    if (typeof val === 'number') return val;
+    return parseFloat(val);
+  }).optional(),
+  location: z.string().optional(),
+});
+
 /**
  * POST /api/houses
  * Create house - sales_employee or rental_employee only
@@ -243,10 +256,62 @@ const deleteHouse = async (req, res, next) => {
   res.json({ message: 'House deleted successfully' });
 };
 
+/**
+ * GET /api/houses/search
+ * Search for available houses with filters
+ */
+const searchHouses = async (req, res, next) => {
+  const { listingType, minPrice, maxPrice, location } = searchHousesSchema.parse(req.query);
+
+  const where = {
+    status: 'available',
+  };
+
+  if (listingType) {
+    where.listingType = listingType;
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    where.price = {};
+    if (minPrice !== undefined) {
+      where.price.gte = minPrice;
+    }
+    if (maxPrice !== undefined) {
+      where.price.lte = maxPrice;
+    }
+  }
+
+  if (location) {
+    where.address = {
+      contains: location,
+      mode: 'insensitive',
+    };
+  }
+
+  const houses = await prisma.house.findMany({
+    where,
+    include: {
+      homeowner: {
+        select: {
+          id: true,
+          fullName: true,
+          phone: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  res.json(houses);
+};
+
 module.exports = {
   createHouse,
   listHouses,
   getHouse,
   updateHouse,
   deleteHouse,
+  searchHouses,
 };

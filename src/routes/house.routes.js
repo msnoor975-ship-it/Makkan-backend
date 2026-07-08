@@ -6,6 +6,7 @@ const {
   getHouse,
   updateHouse,
   deleteHouse,
+  searchHouses,
 } = require('../controllers/house.controller');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
@@ -256,6 +257,51 @@ router.delete(
   requireAuth,
   requireRole('sales_employee', 'rental_employee', 'manager'),
   asyncHandler(deleteHouse)
+);
+
+/**
+ * @swagger
+ * /api/houses/search:
+ *   get:
+ *     summary: Search available houses
+ *     description: Search for available houses with filters
+ *     tags:
+ *       - Houses
+ *     parameters:
+ *       - in: query
+ *         name: listingType
+ *         schema:
+ *           type: string
+ *           enum: [sale, rent]
+ *         description: Filter by listing type
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Minimum price
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Maximum price
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Location keyword
+ *     responses:
+ *       200:
+ *         description: List of available houses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/House'
+ */
+router.get(
+  '/search',
+  asyncHandler(searchHouses)
 );
 
 module.exports = router;

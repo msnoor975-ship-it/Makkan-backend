@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const AppError = require('../utils/AppError');
+const { AppError } = require('../middleware/errorHandler');
 
 const prisma = new PrismaClient();
 

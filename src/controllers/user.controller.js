@@ -12,7 +12,12 @@ const getAllUsers = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
+        emailVerified: true,
         createdAt: true,
+        lastLogin: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -34,7 +39,12 @@ const getUserById = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
+        emailVerified: true,
         createdAt: true,
+        lastLogin: true,
       },
     });
 
@@ -70,12 +80,18 @@ const createUser = async (req, res, next) => {
       data: {
         username,
         passwordHash,
+        fullName,
+        email,
         role,
+        status: 'active',
       },
       select: {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
         createdAt: true,
       },
     });
@@ -87,7 +103,7 @@ const createUser = async (req, res, next) => {
         action: 'CREATE_USER',
         entity: 'User',
         entityId: user.id,
-        changes: { username, role },
+        changes: { username, role, status: 'active' },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       },
@@ -115,11 +131,14 @@ const updateUserStatus = async (req, res, next) => {
 
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: { role: status },
+      data: { status },
       select: {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
         createdAt: true,
       },
     });
@@ -128,12 +147,22 @@ const updateUserStatus = async (req, res, next) => {
     await prisma.auditLog.create({
       data: {
         userId: req.user.userId,
-        action: 'UPDATE_USER_ROLE',
+        action: 'UPDATE_USER_STATUS',
         entity: 'User',
         entityId: id,
-        changes: { oldRole: user.role, newRole: status },
+        changes: { oldStatus: user.status, newStatus: status },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
+      },
+    });
+
+    // Create notification for the user
+    await prisma.notification.create({
+      data: {
+        userId: id,
+        type: 'STATUS_CHANGE',
+        title: 'Account Status Updated',
+        message: `Your account status has been changed to ${status}`,
       },
     });
 
@@ -164,6 +193,9 @@ const updateUserRole = async (req, res, next) => {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
         createdAt: true,
       },
     });
@@ -178,6 +210,16 @@ const updateUserRole = async (req, res, next) => {
         changes: { oldRole: user.role, newRole: role },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
+      },
+    });
+
+    // Create notification for the user
+    await prisma.notification.create({
+      data: {
+        userId: id,
+        type: 'ROLE_CHANGE',
+        title: 'Role Updated',
+        message: `Your role has been changed to ${role}`,
       },
     });
 
@@ -200,10 +242,10 @@ const deleteUser = async (req, res, next) => {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    // Soft delete by setting role to deleted
+    // Soft delete by setting status to deleted
     await prisma.user.update({
       where: { id },
-      data: { role: 'deleted' },
+      data: { status: 'deleted' },
     });
 
     // Create audit log
@@ -229,11 +271,14 @@ const deleteUser = async (req, res, next) => {
 const getPendingUsers = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
-      where: { role: 'pending' },
+      where: { status: 'pending' },
       select: {
         id: true,
         username: true,
         role: true,
+        status: true,
+        fullName: true,
+        email: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },

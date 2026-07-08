@@ -62,7 +62,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 router.post(
   '/search-and-reserve',
   requireAuth,
-  requireRole('sales_employee', 'rental_employee'),
+  requireRole('sales_employee', 'rental_employee', 'manager'),
   asyncHandler(searchAndReserve)
 );
 

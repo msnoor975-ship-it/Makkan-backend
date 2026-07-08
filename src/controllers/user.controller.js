@@ -84,18 +84,22 @@ const createUser = async (req, res, next) => {
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId,
-        action: 'CREATE_USER',
-        entity: 'User',
-        entityId: user.id,
-        changes: { username, role },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
-      },
-    });
+    // Create audit log (optional - skip if fails)
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user.userId,
+          action: 'CREATE_USER',
+          entity: 'User',
+          entityId: user.id,
+          changes: { username, role },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        },
+      });
+    } catch (auditError) {
+      console.error('Failed to create audit log:', auditError);
+    }
 
     res.status(201).json(user);
   } catch (error) {
@@ -129,18 +133,22 @@ const updateUserRole = async (req, res, next) => {
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId,
-        action: 'UPDATE_USER_ROLE',
-        entity: 'User',
-        entityId: id,
-        changes: { oldRole: user.role, newRole: role },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
-      },
-    });
+    // Create audit log (optional - skip if fails)
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user.userId,
+          action: 'UPDATE_USER_ROLE',
+          entity: 'User',
+          entityId: id,
+          changes: { oldRole: user.role, newRole: role },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        },
+      });
+    } catch (auditError) {
+      console.error('Failed to create audit log:', auditError);
+    }
 
     res.json(updatedUser);
   } catch (error) {
@@ -167,18 +175,22 @@ const deleteUser = async (req, res, next) => {
       where: { id },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user.userId,
-        action: 'DELETE_USER',
-        entity: 'User',
-        entityId: id,
-        changes: { username: user.username, role: user.role },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
-      },
-    });
+    // Create audit log (optional - skip if fails)
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user.userId,
+          action: 'DELETE_USER',
+          entity: 'User',
+          entityId: id,
+          changes: { username: user.username, role: user.role },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        },
+      });
+    } catch (auditError) {
+      console.error('Failed to create audit log:', auditError);
+    }
 
     res.json({ message: 'User deleted successfully' });
   } catch (error) {

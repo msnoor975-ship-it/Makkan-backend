@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { searchAndReserve, listReservations } = require('../controllers/reservation.controller');
+const { searchAndReserve, listReservations, createReservation } = require('../controllers/reservation.controller');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 
@@ -116,6 +116,53 @@ router.get(
   requireAuth,
   requireRole('sales_employee', 'rental_employee', 'manager'),
   asyncHandler(listReservations)
+);
+
+/**
+ * @swagger
+ * /api/reservations:
+ *   post:
+ *     summary: Create reservation
+ *     description: Create the reservation for a specific house and customer
+ *     tags:
+ *       - Reservations
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               customerId:
+ *                 type: string
+ *                 format: uuid
+ *               houseId:
+ *                 type: string
+ *                 format: uuid
+ *               reservationDate:
+ *                 type: string
+ *                 format: date-time
+ *           example:
+ *             customerId: "uuid-of-customer"
+ *             houseId: "uuid-of-house"
+ *             reservationDate: "2024-01-15T10:00:00Z"
+ *     responses:
+ *       201:
+ *         description: Reservation created successfully
+ *       400:
+ *         description: Validation error or house not available
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - insufficient permissions
+ */
+router.post(
+  '/',
+  requireAuth,
+  requireRole('sales_employee', 'rental_employee'),
+  asyncHandler(createReservation)
 );
 
 module.exports = router;

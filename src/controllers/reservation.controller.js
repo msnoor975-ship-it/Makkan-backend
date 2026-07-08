@@ -160,7 +160,78 @@ const listReservations = async (req, res, next) => {
   res.json(reservations);
 };
 
+/**
+ * POST /api/reservations
+ * Create a reservation for a specific house and customer
+ * sales_employee or rental_employee only
+ */
+const createReservation = async (req, res, next) => {
+  const { customerId, houseId, reservationDate } = req.body;
+
+  // Validate customer exists
+  const customer = await prisma.customer.findUnique({
+    where: { id: customerId },
+  });
+
+  if (!customer) {
+    throw new AppError('Customer not found', 400, 'CUSTOMER_NOT_FOUND');
+  }
+
+  // Validate house exists and is available
+  const house = await prisma.house.findUnique({
+    where: { id: houseId },
+  });
+
+  if (!house) {
+    throw new AppError('House not found', 400, 'HOUSE_NOT_FOUND');
+  }
+
+  if (house.status !== 'available') {
+    throw new AppError('House is not available for reservation', 400, 'HOUSE_NOT_AVAILABLE');
+  }
+
+  // Use transaction to atomically create reservation and update house status
+  const result = await prisma.$transaction(async (tx) => {
+    // Create reservation
+    const reservation = await tx.reservation.create({
+      data: {
+        customerId,
+        houseId,
+        handledByUserId: req.user.userId,
+        reservationDate: reservationDate || new Date(),
+        status: 'pending',
+      },
+      include: {
+        customer: true,
+        house: {
+          include: {
+            homeowner: true,
+          },
+        },
+        handledByUser: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    // Update house status to reserved
+    await tx.house.update({
+      where: { id: houseId },
+      data: { status: 'reserved' },
+    });
+
+    return reservation;
+  });
+
+  res.status(201).json(result);
+};
+
 module.exports = {
   searchAndReserve,
   listReservations,
+  createReservation,
 };

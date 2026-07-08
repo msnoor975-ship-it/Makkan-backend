@@ -10,8 +10,7 @@ const {
   deleteUser,
   getPendingUsers,
 } = require('../controllers/user.controller');
-const { requireAuth } = require('../middleware/auth');
-const { requireRole } = require('../middleware/roleCheck');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 // All user management routes require authentication and manager role
 router.use(requireAuth);

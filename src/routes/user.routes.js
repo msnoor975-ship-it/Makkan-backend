@@ -10,9 +10,9 @@ const {
 } = require('../controllers/user.controller');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
-// All user management routes require authentication and manager role
+// All user management routes require authentication and manager or sales_employee role
 router.use(requireAuth);
-router.use(requireRole('manager'));
+router.use(requireRole('manager', 'sales_employee'));
 
 // Get all users
 router.get('/', asyncHandler(getAllUsers));
